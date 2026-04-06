@@ -1,5 +1,6 @@
 // Data Improted into the Javascript //
-import { tweetsData } from './data.js'
+import { tweetsData as initialTweets } from './data.js'
+let tweetsData = initialTweets
 
 // Function uuid //
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
@@ -178,7 +179,7 @@ function getFeedHTML() {
             </div>
              <div class="hidden" id="replies-${tweets.uuid}">
                <div class="reply-input-area">
-                  <input type="text" id="reply-input-${tweets.uuid}" placebolder="write your reply...." required>
+                  <input type="text" id="reply-input-${tweets.uuid}" placeholder="write your reply...." required>
                   <button class="submit-btn" data-reply-btn="${tweets.uuid}" type="submit">Reply</button>
                </div>
                ${repliesHtml}
