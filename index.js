@@ -113,10 +113,48 @@ function handleRetweetClick(tweetId) {
 }
 
 
-
 // Function handleReplyClick() for comments and replies //
 function handleReplyClick(tweetId) {
    document.getElementById(`replies-${tweetId}`).classList.toggle('hidden')
+}
+
+function handleNewTweet(){
+   if(tweetInput.value){
+         let newTweet = {
+            handle: `@fakharalam`,
+            profilePic: `/images/profile.png`,
+            likes: 0, 
+            retweets: 0,
+            tweetText: tweetInput.value,
+            replies: [],
+            isLiked: false,
+            isRetweeted: false,
+            uuid: uuidv4(),
+         }
+         tweetsData.unshift(newTweet)
+      }
+      localStorage.setItem('tweetsData', JSON.stringify(tweetsData))
+      render()
+      tweetInput.value = ''
+}
+
+function handleReplySubmit(tweetId) {
+   const tweetTargetObj = tweetsData.filter(function(tweet){
+      return tweet.uuid === tweetId
+   })[0]
+   const replyInput = document.getElementById(`reply-input-${tweetId}`)
+   if (replyInput.value){
+      let newReply = {
+            handle: `@fakharalam`,
+            profilePic: `/images/profile.png`,
+            tweetText: document.getElementById(`reply-input-${tweetId}`).value,
+         }
+      tweetTargetObj.replies.unshift(newReply)
+   }
+   localStorage.setItem('tweetsData', JSON.stringify(tweetsData))
+      render()
+      replyInput.value = ''
+   
 }
 
 // EVENT LISTENER
@@ -135,25 +173,11 @@ document.addEventListener('click', function(e){
    }
 
    if (e.target.id === 'tweet-btn'){
-      if(tweetInput.value){
-         let newTweet = {
-            handle: `@fakharalam`,
-            profilePic: `/images/profile.png`,
-            likes: 0, 
-            retweets: 0,
-            tweetText: tweetInput.value,
-            replies: [],
-            isLiked: false,
-            isRetweeted: false,
-            uuid: uuidv4(),
-         }
-         tweetsData.unshift(newTweet)
-      }
+      handleNewTweet()
+   }
 
-      localStorage.setItem('tweetsData', JSON.stringify(tweetsData))
-
-      render()
-      tweetInput.value = ''
+   if (e.target.dataset.replyBtn){
+      handleReplySubmit(e.target.dataset.replyBtn)
    }
 })
 
@@ -212,9 +236,14 @@ function getFeedHTML() {
                      </div>   
                </div>            
             </div>
-            <div class="hidden" id="replies-${tweets.uuid}">
+             <div class="hidden" id="replies-${tweets.uuid}">
+               <div class="reply-input-area">
+                  <input type="text" id="reply-input-${tweets.uuid}" placebolder="write your reply...." required>
+                  <button class="submit-btn" data-reply-btn="${tweets.uuid}" type="submit">Reply</button>
+               </div>
                ${repliesHtml}
-            </div> 
+            </div>
+            
          </div>`
       })
    return feedHTML
