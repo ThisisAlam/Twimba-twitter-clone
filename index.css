@@ -123,6 +123,14 @@ button:active {
 .fa-comment-dots:active, .fa-heart:active, .fa-retweet:active {
     transform: scale(0.98);
 }
+/* toggle Class List */
+.liked{
+    color: #f80000; /* red */
+}
+
+.shared{
+    color: limegreen; 
+}
 
 .handle{
     font-size: 12px;

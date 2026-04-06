@@ -2,6 +2,7 @@
 // import { tweetsData } from './data.js'
 
 // Data //
+
 const tweetsData = [   
     {
         handle: `@TrollBot66756542 💎`,
@@ -60,17 +61,11 @@ const tweetsData = [
         uuid: '8hy671sff-c0f5-4545-9c4b-1237gyys45',
     },     
 ]
+// Function uuid //
+import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
 // Taking Control of ID's //
 const tweetInput = document.getElementById('tweet-input')
-const tweetBtn = document.getElementById('tweet-btn')
-
-// Listening to Event //
-tweetBtn.addEventListener('click', function(){
-   console.log(tweetInput.value)
-})
-
-
 
 // Filtering tweetObjReplies //
 const tweetObjReplies = tweetsData.filter(function(tweet){
@@ -80,9 +75,6 @@ const tweetObjReplies = tweetsData.filter(function(tweet){
 // Event Listener // 
 // Run count for like and retweet //  
 // Open Comment //
-const commentBtn = document.getElementById("comment-btn")
-const likeBtn = document.getElementById("like-btn")
-const retweetBtn = document.getElementById("retweet-btn")
 
 // Function handleLikeClick() filtering tweetTargetObj for Likes //
 function handleLikeClick(tweetId) {
@@ -91,7 +83,9 @@ function handleLikeClick(tweetId) {
    })[0]
    if (!tweetTargetObj.isLiked){
       tweetTargetObj.likes++
-   } else { tweetTargetObj.likes-- }
+   } else { 
+      tweetTargetObj.likes-- 
+   }
       tweetTargetObj.isLiked = !tweetTargetObj.isLiked
       render()
 }
@@ -102,9 +96,15 @@ function handleRetweetClick(tweetId) {
    })[0]
    if (!tweetTargetObj.isRetweeted){
       tweetTargetObj.retweets++
+      
    } else { tweetTargetObj.retweets-- }
       tweetTargetObj.isRetweeted = !tweetTargetObj.isRetweeted
       render()
+}
+
+// Function handleReplyClick() for comments and replies //
+function handleReplyClick(tweetId) {
+   document.getElementById(`replies-${tweetId}`).classList.toggle('hidden')
 }
 
 document.addEventListener('click', function(e){
@@ -122,15 +122,30 @@ document.addEventListener('click', function(e){
          handleRetweetClick(e.target.dataset.retweet)
    }
 
-   // comment funtion //
-   if (e.target.document.getElementById("comment-btn")){
-      if (!tweetObj.replies.length > 0) {
-         e.target.id.parentElement.style.display = 'none'
-      } else {
-         e.target.id.parentElement.style.display = 'flex'
-      }
+   // Comment/Reply funtion //
+   if (e.target.dataset.reply){
+      handleReplyClick(e.target.dataset.reply)
    }
 
+   // Tweet Btn //
+   if (e.target.id.includes('tweet-btn')){
+      console.log(tweetInput.value)
+      let newTweet = {
+        handle: `@fakhar.alam35`,
+        profilePic: `/images/scrimbalogo.png`,
+        likes: 0,
+        retweets: 0,
+        tweetText: tweetInput.value ,
+        replies: [],
+        isLiked: false,
+        isRetweeted: false,
+        uuid: uuidv4(),
+      }
+      console.log(newTweet.uuid)
+      tweetsData.unshift(newTweet)
+      render()
+       tweetInput.value = ''
+   }
 })
 
 // Only 1 FeedHTML //
@@ -138,6 +153,33 @@ const feed = document.getElementById('feed')
 function getFeedHTML() {
    let feedHTML = ''
    tweetsData.forEach(function(tweets){
+      let likeIconClass = ''
+      let retweetIconClass = ''
+      if (tweets.isLiked){
+         likeIconClass = 'liked'
+      }
+      if (tweets.isRetweeted){
+         retweetIconClass = 'shared'
+      }
+
+// Conguring repliesHtml prior to the final feedHtml // 
+      let repliesHtml = ''
+      if (tweets.replies.length > 0){
+         console.log(tweets.uuid)
+      tweets.replies.forEach(function(reply){
+         repliesHtml +=
+            `<div class="tweet-reply">
+               <div class="tweet-inner">
+                  <img src="${reply.profilePic}" class="profile-pic">
+                  <div>
+                     <p class="handle">${reply.handle}</p>
+                     <p class="tweet-text">${reply.tweetText}</p>
+                  </div>
+               </div>
+            </div>`
+         })
+      } 
+      
       feedHTML += 
          `<div class="tweet">
             <div class="tweet-inner">
@@ -150,25 +192,29 @@ function getFeedHTML() {
                         <span class="tweet-detail">
                            ${tweets.replies.length}
                         </span>
-                        <i class="fa-solid fa-heart" data-like="${tweets.uuid}" id="like-btn"></i>
+                        <i class="fa-solid fa-heart ${likeIconClass}" data-like="${tweets.uuid}" id="like-btn"></i>
                         <span class="tweet-detail">
                            ${tweets.likes}
                         </span>
-                        <i class="fa-solid fa-retweet" data-retweet="${tweets.uuid}" id="retweet-btn"></i>
+                        <i class="fa-solid fa-retweet ${retweetIconClass}" data-retweet="${tweets.uuid}" id="retweet-btn"></i>
                         <span class="tweet-detail">
                            ${tweets.retweets}
                         </span>
                      </div>   
                </div>            
             </div>
+            <div class="hidden" id="replies-${tweets.uuid}">
+               ${repliesHtml}
+            </div> 
          </div>`
-   })
+      })
    return feedHTML
 }
 
 // Function render() //
 function render(){
    feed.innerHTML = getFeedHTML()
+
 }
 
 // Calling function render () //
