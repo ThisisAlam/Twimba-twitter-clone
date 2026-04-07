@@ -4,7 +4,7 @@ let tweetsData = initialTweets
 
 // Function uuid //
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
-// localStorage.clear()
+localStorage.clear()
 
 // LOAD FROM LOCAL STORAGE (IMPORTANT: must come early)
 const storedTweets = JSON.parse(localStorage.getItem('tweetsData'))
